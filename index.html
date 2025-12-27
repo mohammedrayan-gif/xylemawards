@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Event Entry Validation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .card {
+            background: #ffffff;
+            padding: 30px 25px;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        h2 {
+            margin: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 16px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #667eea, #5a67d8);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        
+        button:hover {
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        #result {
+            margin-top: 18px;
+            font-size: 15px;
+        }
+        
+        .success {
+            background: #e6fffa;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #99f6e4;
+        }
+        
+        .error {
+            background: #fff1f2;
+            color: #9f1239;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #fecdd3;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>Event Entry</h2>
+        <p class="subtitle">Enter your registered phone number</p>
+
+        <input type="tel" id="phone" placeholder="📱 Phone Number">
+        <button onclick="validate()">Validate Entry</button>
+
+        <div id="result"></div>
+    </div>
+
+    <!-- 🔒 SCRIPT PART UNCHANGED -->
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTFt9bXgjVai__Znn4Qrb0EqCLQmDwmVBsQcPemD9MzKCnjYA75bQhruuFrsaKg-IA/exec";
+
+        function validate() {
+            const phone = document.getElementById("phone").value.trim();
+            const result = document.getElementById("result");
+
+            if (!phone) {
+                result.innerHTML = "<p class='error'>Enter phone number</p>";
+                return;
+            }
+
+            fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        phone
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        result.innerHTML =
+                            `<p class='success'>
+          ✅ Entry Successful<br>
+          ID: <b>${data.id}</b>
+        </p>`;
+                    } else if (data.status === "already") {
+                        result.innerHTML =
+                            `<p class='error'>
+          ⚠️ Entry already done<br>
+          ID: <b>${data.id}</b>
+        </p>`;
+                    } else {
+                        result.innerHTML =
+                            `<p class='error'>❌ Not in list</p>`;
+                    }
+                })
+                .catch(() => {
+                    result.innerHTML = "<p class='error'>Server error</p>";
+                });
+        }
+    </script>
+
+</body>
+
+</html>
